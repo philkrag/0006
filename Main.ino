@@ -19,6 +19,7 @@
 // 2019-09-28   || Phillip Kraguljac    || Version 1.1
 // 2019-10-23   || Phillip Kraguljac    || Version 1.2
 // 2019-10-23   || Phillip Kraguljac    || Version 1.3
+// 2019-10-23   || Phillip Kraguljac    || Version 1.4
 // /////////////////////////////////////////////////////////////////////// VERSION CONTROL
 */
 
@@ -29,9 +30,9 @@
 int Startup_Delay = 60;                                                             // Cycle time allocated for start-up.
 int Position_Delay = 100;                                                           // Time allowed for unit to settle in position.
 int Waiting_Delay = 400;                                                            // Cycle time allocated for start-up.
-int Pallet_Delay = 420;                                                             // ...
-int Gap_Delay = 50;                                                                // ...
-int Spacing_Delay = 50;                                                            // ...
+int Pallet_Delay = 415;                                                             // ...
+int Gap_Delay = 50;                                                                 // ...
+int Spacing_Delay = 100;                                                            // ...
 int Serial_Output_Delay = 60;                                                       // Time allowed for sending serial.
 int Override_Switch = 53;                                                           // IO Input address.
 int Upper_Position = 72;                                                            // Upper position for top of bus bar.
