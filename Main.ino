@@ -20,6 +20,7 @@
 // 2019-10-23   || Phillip Kraguljac    || Version 1.2
 // 2019-10-23   || Phillip Kraguljac    || Version 1.3
 // 2019-10-23   || Phillip Kraguljac    || Version 1.4
+// 2019-11-20   || Phillip Kraguljac    || Version 1.5
 // /////////////////////////////////////////////////////////////////////// VERSION CONTROL
 */
 
@@ -33,6 +34,7 @@ int Waiting_Delay = 400;                                                        
 int Pallet_Delay = 420;                                                             // ...
 int Gap_Delay = 50;                                                                 // ...
 int Spacing_Delay = 100;                                                            // ...
+int Maximum_Spacing_Time = 100;                                                     // Maximum allowed time for pallet to be spaced. (1)
 int Serial_Output_Delay = 60;                                                       // Time allowed for sending serial.
 int Override_Switch = 53;                                                           // IO Input address.
 int Upper_Position = 72;                                                            // Upper position for top of bus bar.
@@ -45,13 +47,13 @@ int Noise_Filter_Memory = 0;                                                    
 int Pallet_Detection_Trigger = 300;                                                 // ...
 
 
-
 // /////////////////////////////////////////////////////////////////////// SYSTEM VARIABLES
 const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;                           // Required for LCD.
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);                                          // Required for LCD.
 //Servo Y_Axis_Servo;                                                               // Requried for Servo.
 bool Override_Flag = false;                                                         // Flag used for triggering system override.
 int Mode_Time_Indexer = 0;                                                          // Index used for mode cycle timers.
+int Maximum_Spacing_Indexer = 0;                                                    // Index used for maximum spacer timer.
 String Mode = "START-UP";                                                           // Mode Indexer.
 String Upper_LCD_Line = "";                                                         // LCD upper output string.
 String Lower_LCD_Line = "";                                                         // LCD lower output string.
@@ -167,6 +169,7 @@ if(Mode=="GAP"){                                                                
 Temp_Measurement_Reading = Scan_Sensor(Sensor_Trigger_A1, Sensor_Echo_A1);          // ...
 if(Override_Flag){Mode = "OVERRIDE"; Mode_Restart();}                               // Go to override if switched.
 Mode_Time_Indexer = Mode_Time_Indexer + 1;                                          // Increment mode counter.
+Maximum_Spacing_Indexer = Maximum_Spacing_Indexer + 1;                              // Increment max spacer counter.
 Upper_LCD_Line = "Mode: "+Mode;                                                     // Set upper LCD line.
 Lower_LCD_Line = Progress_Bar(Gap_Delay, Mode_Time_Indexer);                        // Set lower LCD Line.
 General_LCD_Output(Upper_LCD_Line, Lower_LCD_Line);                                 // Display LCD.
@@ -185,12 +188,14 @@ if(Mode_Time_Indexer > Gap_Delay){Mode = "WAITING"; Mode_Restart();}            
 if(Mode=="SPACING"){                                                                // Waiting for pallet mode in operation.
 if(Override_Flag){Mode = "OVERRIDE"; Mode_Restart();}                               // Go to override if switched.
 Mode_Time_Indexer = Mode_Time_Indexer + 1;                                          // Increment mode counter.
+Maximum_Spacing_Indexer = Maximum_Spacing_Indexer + 1;                              // Increment max spacer counter.
 Upper_LCD_Line = "Mode: "+Mode;                                                     // Set upper LCD line.
 Lower_LCD_Line = Progress_Bar(Spacing_Delay, Mode_Time_Indexer);                    // Set lower LCD Line.        ";
 General_LCD_Output(Upper_LCD_Line, Lower_LCD_Line);                                 // Display LCD.
 Indicator_Output = "Operating - Active";                                            // ...
 Relay_Stop_Output = true;                                                           // ...
 if(Mode_Time_Indexer > Spacing_Delay){Mode = "SEND SERIAL"; Mode_Restart();}        // Switch mode once complete.
+if(Maximum_Spacing_Indexer > Maximum_Spacing_Time){Mode = "SEND SERIAL"; Mode_Restart();}     // Go to override if switched.
 }  
 
 
@@ -377,7 +382,11 @@ lcd.print(Lower_LCD_Line);                                                      
 // [FUNCTION] => Mode Restart
 void Mode_Restart(){
 Mode_Time_Indexer = 0; // Reset mode indexer.                                       // ...
+Maximum_Spacing_Indexer = 0;                                                        // ...
 Pallet_Detected = false;                                                            // ...
 Noise_Filter_Memory = 0;                                                            // ...
 lcd.clear();                                                                        // ...
 }                                                                                   // ...
+
+// NOTES
+// (1) Expereinced issues where the acutal spacing of a pallet was Gap_Delay + Spacing_Delay. Maximum_Spacing_Time should eliminate this issue.
